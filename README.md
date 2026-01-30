@@ -32,7 +32,7 @@ A URL Bookmarker application built with PostgreSQL, Express, React, and Node.js 
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/mrgreg-I/URL-BookMarker---PERN.git
 cd URL-BookMarker---PERN
 ```
 
@@ -51,14 +51,21 @@ npm install
 4. Configure environment variables:
 Create a `.env` file in the server directory with:
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/url_bookmarker
+
+# Connect to Supabase via connection pooling
+DATABASE_URL="postgresql://user:password@localhost:5432/url_bookmarker"
+
+# Direct connection to the database. Used for migrations
+DIRECT_URL="postgresql://user:password@localhost:5432/url_bookmarker"
+
 PORT=5000
 ```
 
 5. Set up the database:
 ```bash
 cd server
-npx prisma migrate dev
+npx prisma migrate dev --name init
+npx prisma generate
 ```
 
 6. Start the development servers:
@@ -114,8 +121,3 @@ URL-BookMarker---PERN/
 - `urlbookmarker` - URL Bookmarks
 
 
-## License
-ISC
-
-## Support
-For issues or questions, please open an issue in the repository.
