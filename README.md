@@ -111,7 +111,7 @@ URL-BookMarker---PERN/
 ## Database Schema
 
 ### Core Tables (from initial migration)
-- `urlbookmarks` - URL Bookmarks
+- `urlbookmarker` - URL Bookmarks
 
 
 ## License
