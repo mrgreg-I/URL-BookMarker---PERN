@@ -20,7 +20,7 @@ app.post("/api/bookmarks", async (req: Request, res: Response): Promise<void> =>
   try {
     const { title, url, category } = req.body;
 
-    // Validation
+    // Validation when creating a bookmark if the fields are not filled
     if (!title || !url || !category) {
       res.status(400).json({
         error: "Missing required fields: title, url, category",
@@ -28,7 +28,7 @@ app.post("/api/bookmarks", async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // Create bookmark in database
+    // Create bookmark in database if all the fields are present
     const bookmark = await prisma.urlBookmarker.create({
       data: {
         title,
@@ -50,7 +50,7 @@ app.post("/api/bookmarks", async (req: Request, res: Response): Promise<void> =>
 });
 
 
-// Get bookmark by ID
+// Read url bookmark by ID
 app.get("/api/bookmarks/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,7 +73,7 @@ app.get("/api/bookmarks/:id", async (req, res) => {
   }
 });
 
-// Update bookmark
+// Update url bookmark by ID
 app.put("/api/bookmarks/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,6 +82,7 @@ app.put("/api/bookmarks/:id", async (req, res) => {
     const bookmark = await prisma.urlBookmarker.update({
       where: { id: parseInt(id) },
       data: {
+        //... is for the case when only some fields are updated so we don't overwrite existing data with undefined
         ...(title && { title }),
         ...(url && { url }),
         ...(category && { category }),
@@ -100,7 +101,7 @@ app.put("/api/bookmarks/:id", async (req, res) => {
   }
 });
 
-// Delete bookmark
+// Delete url bookmark by ID
 app.delete("/api/bookmarks/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -120,7 +121,7 @@ app.delete("/api/bookmarks/:id", async (req, res) => {
   }
 });
 
-// Get all bookmarks
+// Get all url bookmarks
 app.get("/api/bookmarks", async (req, res) => {
   try {
     const bookmarks = await prisma.urlBookmarker.findMany();
@@ -136,7 +137,8 @@ app.get("/api/bookmarks", async (req, res) => {
 });
 
 
-// Increment click count
+// Increment click count by clicking url bookmark
+//Used post method as clicks are considered an action instead of put which is more for updating resources
 app.post("/api/bookmarks/:id/click", async (req, res) => {
   try {
     const { id } = req.params;
@@ -145,6 +147,7 @@ app.post("/api/bookmarks/:id/click", async (req, res) => {
       where: { id: parseInt(id) },
       data: {
         clicks: {
+          //increment is a Prisma operation to increase a field integer value in the database
           increment: 1,
         },
       },
@@ -164,11 +167,7 @@ app.post("/api/bookmarks/:id/click", async (req, res) => {
 
 
 
-// Health check
-app.get("/health", (req: Request, res: Response): void => {
-  res.status(200).json({ message: "Server is running" });
-});
-
+// Log if the server successfully started
 app.listen(PORT, (): void => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

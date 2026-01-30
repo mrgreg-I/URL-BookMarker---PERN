@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect }from 'react';
 import IconButton from '@mui/material/IconButton';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -16,25 +16,32 @@ import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import './App.css';
+
 
 export default function CustomPaginationActionsTable() {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [bookmarks, setBookmarks] = React.useState([]);
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedBookmarkId, setSelectedBookmarkId] = React.useState(null);
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [isEditMode, setIsEditMode] = React.useState(false);
-  const [editingBookmark, setEditingBookmark] = React.useState(null);
-  const [formData, setFormData] = React.useState({
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingBookmark, setEditingBookmark] = useState(null);
+  const [formData, setFormData] = useState({
     title: '',
     url: '',
     category: ''
   });
 
   // Fetch bookmarks from API
-  React.useEffect(() => {
+  useEffect(() => {
     fetchBookmarks();
   }, []);
 
@@ -50,11 +57,14 @@ export default function CustomPaginationActionsTable() {
     }
   };
 
-  // Filter bookmarks based on search term
-  const filteredBookmarks = bookmarks.filter(bookmark =>
-    bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    bookmark.url.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter bookmarks based on search term and category
+  // categoryFilter added to the filtering logic for dropdown category selection
+  const filteredBookmarks = bookmarks.filter(bookmark => {
+    const matchesSearch = bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         bookmark.url.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === '' || bookmark.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -179,15 +189,20 @@ export default function CustomPaginationActionsTable() {
     }
   };
 
+  //dropdown category 
+  const handleChange = (event) => {
+    setCategoryFilter(event.target.value);
+  };
+
   return (
-    <div style={styles.container}>
+    <div className='container'>
       {/* Header */}
-      <div style={styles.header}>
-        <h1 style={styles.title}><BookmarkBorderOutlinedIcon sx={{ height: 60, width: 50 }}/> URL BookMarker</h1>
+      <div className='header'>
+        <h1 className='title'><BookmarkBorderOutlinedIcon sx={{ height: 60, width: 50 }}/> URL BookMarker</h1>
       </div>
 
       {/* Search Bar */}
-      <div style={styles.searchWrapper}>
+      <div className='search-wrapper'>
   <TextField
     placeholder="Search by Title or URL..."
     value={searchTerm}
@@ -202,21 +217,43 @@ export default function CustomPaginationActionsTable() {
         </InputAdornment>
       ),
     }}
-    sx={{...styles.searchInput, padding: '0px'}} 
+    className='search-input'
+    sx={{padding: '0px'}} 
     fullWidth
   />
 </div>
+
+      {/* Category Filter */}
+       <Box sx={{ width: 180, marginBottom: '20px' }}>
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Category</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={categoryFilter}
+          label="Category"
+          onChange={handleChange}
+        >
+          <MenuItem value=''>All Categories</MenuItem>
+          <MenuItem value='Socials'>Socials</MenuItem>
+          <MenuItem value='Work'>Work</MenuItem>
+          <MenuItem value='Entertainment'>Entertainment</MenuItem>
+          <MenuItem value='Education'>Education</MenuItem>
+          <MenuItem value='Others'>Others</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
       {/* Table Container */}
-      <div style={styles.tableWrapper}>
-        <table style={styles.table}>
+      <div className='table-wrapper'>
+        <table className='table'>
           {/* Table Head */}
           <thead>
-            <tr style={styles.headerRow}>
-              <th style={styles.headerCell}>Title</th>
-              <th style={styles.headerCell}>URL</th>
-              <th style={styles.headerCell}>Category</th>
-              <th style={{...styles.headerCell, textAlign: 'center'}}>Clicks</th>
-              <th style={{...styles.headerCell, textAlign: 'center'}}>Actions</th>
+            <tr className='header-row'>
+              <th className='header-cell'>Title</th>
+              <th className='header-cell'>URL</th>
+              <th className='header-cell'>Category</th>
+              <th className='header-cell' sx={{textAlign: 'center'}}>Clicks</th>
+              <th className='header-cell' sx={{textAlign: 'center'}}>Actions</th>
             </tr>
           </thead>
 
@@ -226,33 +263,32 @@ export default function CustomPaginationActionsTable() {
               ? filteredBookmarks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : filteredBookmarks
             ).map((bookmark, idx) => (
-              <tr key={bookmark.id} style={{
-                ...styles.bodyRow,
+              <tr key={bookmark.id} className='body-row' sx={{
                 backgroundColor: idx % 2 === 0 ? '#fff' : '#f9f9f9'
               }}>
-                <td style={styles.bodyCell}>{bookmark.title}</td>
-                <td style={styles.bodyCell}>
+                <td className='body-cell'>{bookmark.title}</td>
+                <td className='body-cell'>
                   <a
                     href={bookmark.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleUrlClick(bookmark.id)}
-                    style={styles.link}
+                    className='link'
                   >
                     {bookmark.url.length > 40 ? bookmark.url.substring(0, 40) + '...' : bookmark.url}
                   </a>
                 </td>
-                <td style={styles.bodyCell}>
-                  <span style={styles.badge}>{bookmark.category}</span>
+                <td className='body-cell'>
+                  <span className='badge'>{bookmark.category}</span>
                 </td>
-                <td style={{...styles.bodyCell, textAlign: 'center'}}>
-                  <span style={styles.clicks}>{bookmark.clicks}</span>
+                <td className='body-cell' sx={{textAlign: 'center'}}>
+                  <span className='clicks'>{bookmark.clicks}</span>
                 </td>
-                <td style={{...styles.bodyCell, textAlign: 'center'}}>
+                <td className='body-cell' sx={{textAlign: 'center'}}>
                   <IconButton
                     size="small"
                     onClick={(e) => handleMenuOpen(e, bookmark.id)}
-                    style={{padding: '4px'}}
+                    sx={{padding: '4px'}}
                   >
                     <MoreVertIcon fontSize="small" />
                   </IconButton>
@@ -261,7 +297,7 @@ export default function CustomPaginationActionsTable() {
             ))}
             {filteredBookmarks.length === 0 && (
               <tr>
-                <td colSpan="5" style={{...styles.bodyCell, textAlign: 'center', padding: '40px', color: '#999'}}>
+                <td colSpan="5" className='body-cell' sx={{textAlign: 'center', padding: '40px', color: '#999'}}>
                   No bookmarks found. Create your first one!
                 </td>
               </tr>
@@ -270,15 +306,15 @@ export default function CustomPaginationActionsTable() {
 
           {/* Table Footer */}
           <tfoot>
-            <tr style={styles.footerRow}>
-              <td colSpan="5" style={{...styles.bodyCell, padding: '16px'}}>
-                <div style={styles.paginationContainer}>
-                  <div style={styles.rowsPerPage}>
+            <tr className='footer-row'>
+              <td colSpan="5" className='body-cell' sx={{padding: '16px'}}>
+                <div className='pagination-container'>
+                  <div className='rows-per-page'>
                     <label>Rows per page:</label>
                     <select
                       value={rowsPerPage}
                       onChange={handleChangeRowsPerPage}
-                      style={styles.select}
+                      className='select'
                     >
                       <option value={5}>5</option>
                       <option value={10}>10</option>
@@ -287,15 +323,15 @@ export default function CustomPaginationActionsTable() {
                     </select>
                   </div>
 
-                  <span style={styles.pageInfo}>
+                  <span className='page-info'>
                     {filteredBookmarks.length === 0 ? 0 : page * rowsPerPage + 1} – {Math.min((page + 1) * rowsPerPage, filteredBookmarks.length)} of {filteredBookmarks.length}
                   </span>
 
-                  <div style={styles.paginationButtons}>
+                  <div className='pagination-buttons'>
                     <button
                       onClick={() => handleChangePage(null, 0)}
                       disabled={page === 0}
-                      style={{...styles.paginationBtn, opacity: page === 0 ? 0.5 : 1}}
+                      className='pagination-btn'  
                       title="First page"
                     >
                       <FirstPageIcon fontSize="small" />
@@ -303,7 +339,8 @@ export default function CustomPaginationActionsTable() {
                     <button
                       onClick={() => handleChangePage(null, page - 1)}
                       disabled={page === 0}
-                      style={{...styles.paginationBtn, opacity: page === 0 ? 0.5 : 1}}
+                      className='pagination-btn'
+                      sx={{ opacity: page === 0 ? 0.5 : 1}}
                       title="Previous page"
                     >
                       <KeyboardArrowLeft fontSize="small" />
@@ -311,7 +348,8 @@ export default function CustomPaginationActionsTable() {
                     <button
                       onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1}
-                      style={{...styles.paginationBtn, opacity: page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1 ? 0.5 : 1}}
+                      className='pagination-btn'
+                      sx={{opacity: page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1 ? 0.5 : 1}}
                       title="Next page"
                     >
                       <KeyboardArrowRight fontSize="small" />
@@ -319,7 +357,8 @@ export default function CustomPaginationActionsTable() {
                     <button
                       onClick={() => handleChangePage(null, Math.max(0, Math.ceil(filteredBookmarks.length / rowsPerPage) - 1))}
                       disabled={page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1}
-                      style={{...styles.paginationBtn, opacity: page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1 ? 0.5 : 1}}
+                      className='pagination-btn'
+                      sx={{ opacity: page >= Math.ceil(filteredBookmarks.length / rowsPerPage) - 1 ? 0.5 : 1}}
                       title="Last page"
                     >
                       <LastPageIcon fontSize="small" />
@@ -338,8 +377,8 @@ export default function CustomPaginationActionsTable() {
         onClick={handleOpenDialog}
         variant="contained"
         startIcon={<AddIcon />}
+        className='add-btn'
         sx={{
-          ...styles.addBtn,
           backgroundColor: '#0066cc',
           textTransform: 'none',
           '&:hover': {
@@ -374,156 +413,3 @@ export default function CustomPaginationActionsTable() {
   );
 }
 
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    padding: '20px',
-    gap: '24px',
-    background: 'linear-gradient(135deg, #f5f5f5 0%, #efefef 100%)',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '12px',
-  },
-  title: {
-    fontSize: '42px',
-    fontWeight: '600',
-    margin: '0 0 8px 0',
-    color: '#222',
-  },
-  subtitle: {
-    fontSize: '16px',
-    color: '#666',
-    margin: 0,
-  },
-  searchWrapper: {
-    width: '100%',
-    maxWidth: '600px',
-  },
-  searchInput: {
-    width: '100%',
-    padding: '12px 16px',
-    fontSize: '16px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    outline: 'none',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
-    boxSizing: 'border-box',
-  },
-  tableWrapper: {
-    width: '100%',
-    maxWidth: '1000px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-  },
-  headerRow: {
-    backgroundColor: '#f8f8f8',
-    borderBottom: '2px solid #ddd',
-  },
-  headerCell: {
-    padding: '16px',
-    textAlign: 'left',
-    fontWeight: '600',
-    color: '#333',
-    fontSize: '14px',
-  },
-  bodyRow: {
-    borderBottom: '1px solid #eee',
-    transition: 'background-color 0.2s',
-  },
-  bodyCell: {
-    padding: '14px 16px',
-    fontSize: '14px',
-    color: '#555',
-  },
-  link: {
-    color: '#0066cc',
-    textDecoration: 'none',
-    transition: 'color 0.2s',
-  },
-  badge: {
-    display: 'inline-block',
-    padding: '4px 12px',
-    backgroundColor: '#e8f0ff',
-    color: '#0066cc',
-    borderRadius: '16px',
-    fontSize: '13px',
-    fontWeight: '500',
-  },
-  clicks: {
-    display: 'inline-block',
-    padding: '4px 12px',
-    backgroundColor: '#f0f0f0',
-    color: '#333',
-    borderRadius: '4px',
-    fontSize: '13px',
-    fontWeight: '600',
-  },
-  footerRow: {
-    backgroundColor: '#fafafa',
-    borderTop: '1px solid #ddd',
-  },
-  paginationContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '24px',
-  },
-  rowsPerPage: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '14px',
-    color: '#666',
-  },
-  select: {
-    padding: '6px 8px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    outline: 'none',
-    cursor: 'pointer',
-  },
-  pageInfo: {
-    fontSize: '14px',
-    color: '#666',
-  },
-  paginationButtons: {
-    display: 'flex',
-    gap: '4px',
-  },
-  paginationBtn: {
-    padding: '8px',
-    backgroundColor: 'transparent',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#666',
-  },
-  addBtn: {
-    padding: '12px 28px',
-    backgroundColor: '#0066cc',
-    color: '#fff',
-    fontSize: '16px',
-    fontWeight: '500',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    marginTop: '8px',
-  },
-};

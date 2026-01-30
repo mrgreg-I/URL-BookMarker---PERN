@@ -2,6 +2,12 @@ import React from 'react';
 import './BookmarkDialog.css';
 import EditIcon from '@mui/icons-material/Edit';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+
 
 export default function BookmarkDialog({ open, onClose, onSave, initialData, isEdit }) {
   const [formData, setFormData] = React.useState({
@@ -74,17 +80,25 @@ export default function BookmarkDialog({ open, onClose, onSave, initialData, isE
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="category">Category</label>
-            <input
-              id="category"
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              placeholder="e.g., Work, Personal, Design"
-            />
-          </div>
+            <Box sx={{ width: 450, marginBottom: '20px' }}>
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Category</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          name="category"
+          value={formData.category}
+          label="Category"
+          onChange={handleInputChange}
+        >
+          <MenuItem value='Socials'>Socials</MenuItem>
+          <MenuItem value='Work'>Work</MenuItem>
+          <MenuItem value='Entertainment'>Entertainment</MenuItem>
+          <MenuItem value='Education'>Education</MenuItem>
+          <MenuItem value='Others'>Others</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
         </div>
 
         <div className="dialog-footer">

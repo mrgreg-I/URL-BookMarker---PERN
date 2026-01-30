@@ -119,6 +119,26 @@
   color: #999;
 }
 
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
 .dialog-footer {
   display: flex;
   gap: 12px;
