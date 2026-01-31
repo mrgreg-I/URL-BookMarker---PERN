@@ -53,12 +53,10 @@ Create a `.env` file in the server directory with:
 ```env
 
 # Connect to Supabase via connection pooling
-DATABASE_URL="postgresql://user:password@localhost:5432/url_bookmarker"
+DATABASE_URL="postgresql://postgres.dgiuccdlgzufiwmyvbba:Mfeania1231@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres"
 
 # Direct connection to the database. Used for migrations
-DIRECT_URL="postgresql://user:password@localhost:5432/url_bookmarker"
-
-PORT=5000
+DIRECT_URL="postgresql://postgres.dgiuccdlgzufiwmyvbba:Mfeania1231@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
 ```
 
 5. Set up the database:
